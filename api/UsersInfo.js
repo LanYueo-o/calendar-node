@@ -14,7 +14,7 @@ let createNewMessage = function (req, res, next) {
         let _res = res;
         connection.query($CONFIG.$sql.userInfo.queryAll,[ param.userName ], function (err, res) {
             let isTrue = false;
-            if(res){ //获取用户列表，循环遍历判断当前用户是否存在
+            if(res){
                 for (let i=0;i<res.length;i++) {
                     if(res[i].set_time_start == param.createTime) {
                         isTrue = true;
@@ -22,7 +22,7 @@ let createNewMessage = function (req, res, next) {
                 }
             }
             let data = {};
-            data.isreg = !isTrue;
+            // data.isreg = !isTrue;
             if(isTrue) {
                 data.result = {
                     code: 1,
@@ -65,22 +65,24 @@ let userMessageInfo = function (req, res, next) {
         let param = req.body;
         connection.query($CONFIG.$sql.userInfo.queryAll,[
             param.userName,
-            param.createTime,
+            // param.createTime,
         ], function (err, res,result) {
             console.info(result);
-            if(res){
-                server.listen(3002,function(){
-                  console.log('Server listening on port:',3002);
-                });
-                // emit:发送消息  on:监听socket请求
-                io.on('connection', function (socket) {
-                  setTimeout(()=>{
-                    socket.emit('news', { msg: res[0].set_message_info });
-                  },300);
-                  socket.on('complete', function (data) {
-                    console.log(data);
-                  });
-                });
+            if(res.length >= 0){
+                // server.listen(3002,function(){
+                //   console.log('Server listening on port:',3002);
+                // });
+                // // emit:发送消息  on:监听socket请求
+                // io.on('connection', function (socket) {
+                //   setTimeout(()=>{
+                //     socket.emit('news', { msg: res[0].set_message_info });
+                //       socket.disconnect() //客户端断开链接
+                //
+                //   },300);
+                //   socket.on('complete', function (data) {
+                //     console.log(data);
+                //   });
+                // });
                 let data = {
                     code: 200,
                     list: res
@@ -102,7 +104,7 @@ let userMessageDelete = function (req, res, next) {
             if(res){
                 let data = {
                     code: 200,
-                    list: res
+                    msg: '删除提醒成功'
                 };
                 $CONFIG.responseJSON(_res, data)
             }else {
